@@ -26,3 +26,4 @@ if question:
             st.write(answer)
         except Exception as e:
             st.error("❌ خطا در دریافت پاسخ. لطفاً اتصال یا کلید API را بررسی کنید.")
+            st.error(f"❌ خطا در دریافت پاسخ: {str(e)}")
