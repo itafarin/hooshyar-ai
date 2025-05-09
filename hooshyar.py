@@ -14,7 +14,9 @@ question = st.text_input("سوال:")
 
 def ask_huggingface(prompt):
     # استفاده از مدل Falcon-RW-1B به جای Mistral
-    API_URL = "https://api-inference.huggingface.co/models/tiiuae/falcon-rw-1b "
+    # API_URL = "https://api-inference.huggingface.co/models/tiiuae/falcon-rw-1b"
+    API_URL = "https://api-inference.huggingface.co/models/gpt2 "
+
     
     headers = {
         "Authorization": f"Bearer {HF_API_KEY}"
