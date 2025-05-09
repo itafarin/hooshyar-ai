@@ -1,7 +1,8 @@
 import streamlit as st
 import requests
 
-HF_API_KEY = "hf_..."  # ← کلید HuggingFace خود را اینجا قرار بده
+# دریافت کلید API از فایل secrets (بجای قرار دادن مستقیم در کد)
+HF_API_KEY = st.secrets["hf"]["api_key"]
 
 st.set_page_config(page_title="هوش‌یار | مشاور تحصیلی هوشمند", page_icon="🎓")
 st.title("🎓 هوش‌یار")
@@ -17,7 +18,13 @@ def ask_huggingface(prompt):
         "options": {"wait_for_model": True}
     }
     response = requests.post(API_URL, headers=headers, json=payload)
-    return response.json()[0]["generated_text"]
+
+    # بررسی موفقیت پاسخ
+    if response.status_code == 200:
+        result = response.json()
+        return result[0]["generated_text"]
+    else:
+        raise Exception(f"خطا در API: {response.status_code} - {response.text}")
 
 if question:
     with st.spinner("در حال پردازش..."):
