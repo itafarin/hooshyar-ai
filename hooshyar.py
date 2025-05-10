@@ -2,13 +2,21 @@ import streamlit as st
 import google.generativeai as genai
 
 # دریافت کلید API از فایل secrets
-API_KEY = st.secrets["gemini"]["api_key"]
+try:
+    API_KEY = st.secrets["gemini"]["api_key"]
+except:
+    st.error("❌ کلید API یافت نشد. لطفاً کلید خود را در تنظیمات اضافه کنید.")
+    st.stop()
 
 # پیکربندی کتابخانه genai با کلید API شما
 genai.configure(api_key=API_KEY)
 
 # انتخاب مدل Gemini Flash (در صورت دسترسی)
-model = genai.GenerativeModel('gemini-1.5-flash')
+try:
+    model = genai.GenerativeModel('gemini-1.5-flash')
+except Exception as e:
+    st.error(f"❌ مدل Gemini قابل دسترسی نیست: {e}")
+    st.stop()
 
 # تنظیمات صفحه
 st.set_page_config(page_title="هوش‌یار | مشاور تحصیلی هوشمند", page_icon="🎓")
@@ -53,12 +61,15 @@ st.markdown("""
 st.title("🎓 هوش‌یار")
 st.markdown("👋 سلام! من هوش‌یار هستم — مشاور تحصیلی هوشمند دانشگاه ملی مهارت. سوال خود را بپرسید:")
 
-# ایجاد session_state برای ذخیره تاریخچه چت
+# ایجاد session_state برای ذخیره تاریخچه چت و کادر ورودی
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
+if "input_area" not in st.session_state:
+    st.session_state.input_area = ""
+
 # دریافت سوال از کاربر
-user_input = st.text_area("سوال:", placeholder="مثلاً: بهترین رشته برای کنکور چیست؟", key="input_area")
+user_input = st.text_area("سوال:", value=st.session_state.input_area, placeholder="مثلاً: بهترین رشته برای کنکور چیست؟", key="input_area")
 
 col1, col2 = st.columns([3, 1])
 with col1:
@@ -71,8 +82,8 @@ if clear_button:
     st.session_state.chat_history = []
     st.experimental_rerun()
 
-# وقتی کاربر سوالی وارد کند
-if send_button and user_input.strip() != "":
+# تشخیص اینکه آیا کاربر دکمه Enter را زده است یا دکمه "بپرس"
+if (send_button or user_input.strip() != "" and len(st.session_state.chat_history) == 0) and user_input.strip() != "":
     # افزودن سوال کاربر به تاریخچه
     st.session_state.chat_history.append(("user", user_input))
 
@@ -85,8 +96,8 @@ if send_button and user_input.strip() != "":
         except Exception as e:
             st.session_state.chat_history.append(("bot", f"❌ خطایی رخ داد: {e}"))
 
-        # پاک کردن کادر ورودی بعد از ارسال
-        st.session_state.input_area = ""
+    # پاک کردن کادر ورودی بعد از ارسال
+    st.session_state.input_area = ""
 
 # نمایش تاریخچه چت
 for sender, message in st.session_state.chat_history:
