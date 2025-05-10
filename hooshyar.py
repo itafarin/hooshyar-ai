@@ -8,7 +8,7 @@ API_KEY = st.secrets["gemini"]["api_key"]
 genai.configure(api_key=API_KEY)
 
 # انتخاب مدل Gemini Pro (تلاش با نام فعلی احتمالی)
-model = genai.GenerativeModel('gemini-pro')
+model = genai.GenerativeModel('gemini-1.5-pro')
 
 # تنظیمات صفحه
 st.set_page_config(page_title="هوش‌یار | مشاور تحصیلی هوشمند", page_icon="🎓")
