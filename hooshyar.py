@@ -63,4 +63,4 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
 if "user_input_value" not in st.session_state:
-    st.session_state.user_input_value =
+    st.session_state.user_input_value =""
