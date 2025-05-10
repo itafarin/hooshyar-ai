@@ -14,7 +14,7 @@ question = st.text_input("سوال:")
 
 # تابع پرسش از مدل HuggingFace
 def ask_huggingface(prompt):
-    API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-large"
+    API_URL = "https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta"
     headers = {"Authorization": f"Bearer {HF_API_KEY}"}
     payload = {
         "inputs": prompt,
