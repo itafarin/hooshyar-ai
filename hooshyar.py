@@ -1,45 +1,25 @@
 import streamlit as st
 import google.generativeai as genai
 
-# --- تنظیمات API ---
-try:
-    API_KEY = st.secrets["gemini"]["api_key"]
-except:
-    st.error("❌ کلید API یافت نشد.")
-    st.stop()
+# دریافت کلید API از فایل secrets
+API_KEY = st.secrets["gemini"]["api_key"]
 
+# پیکربندی کتابخانه genai با کلید API شما
 genai.configure(api_key=API_KEY)
 
-# --- بارگذاری مدل Gemini ---
-try:
-    model = genai.GenerativeModel('gemini-1.5-flash')
-except Exception as e:
-    st.error(f"❌ مدل Gemini قابل دسترسی نیست: {e}")
-    st.stop()
+# انتخاب مدل Gemini Flash (در صورت دسترسی)
+model = genai.GenerativeModel('gemini-1.5-flash')
 
-# --- استایل و عنوان ---
+# تنظیمات صفحه
 st.set_page_config(page_title="هوش‌یار | مشاور تحصیلی هوشمند", page_icon="🎓")
 
+# استایل برای راست چین کردن محتوا و فونت فارسی
 st.markdown("""
     <style>
         body > div > div > div > div > div {
             direction: rtl;
             text-align: right;
-            font-family: 'Tahoma', 'Nafees', sans-serif;
-        }
-        .message {
-            padding: 10px;
-            margin: 8px 0;
-            border-radius: 8px;
-            background-color: #f0f0f0;
-        }
-        .user {
-            background-color: #DCF8C6;
-            text-align: right;
-        }
-        .bot {
-            background-color: #ECECEC;
-            text-align: right;
+            font-family: 'Tahoma', 'Nafees', 'Arial', sans-serif;
         }
         .stTextInput textarea {
             height: 120px;
@@ -55,12 +35,31 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# عنوان و متن خوش‌آمدگویی
 st.title("🎓 هوش‌یار")
-st.markdown("👋 سلام! من هوش‌یار هستم — مشاور تحصیلی هوشمند دانشگاه ملی مهارت. سوال خود را بپرسید:")
+st.markdown("👋 سلام! به مشاور هوشمند تحصیلی دانشگاه ملی مهارت خوش آمدید. سوال خود را بپرسید:")
 
-# --- session_state ---
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
+# دریافت سوال از کاربر
+question = st.text_area("سوال:", placeholder="مثلاً: بهترین رشته برای کنکور چیست؟")
 
-if "user_input_value" not in st.session_state:
-    st.session_state.user_input_value =""
+# تابع پرسش از مدل Gemini
+def ask_gemini(prompt):
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        raise Exception(f"خطا در مدل Gemini: {e}")
+
+# دکمه "بپرس"
+if st.button("🔍 بپرس"):
+    if question.strip() == "":
+        st.warning("⚠️ لطفاً یک سوال وارد کنید.")
+    else:
+        with st.spinner("در حال پردازش..."):
+            try:
+                prompt = f"سوال مشاوره تحصیلی: {question}"
+                result = ask_gemini(prompt)
+                st.success("✅ پاسخ:")
+                st.markdown(result)
+            except Exception as e:
+                st.error(f"❌ خطا: {e}")
