@@ -1,8 +1,14 @@
 import streamlit as st
-import requests
+import google.generativeai as genai
 
-# دریافت کلید از فایل secrets
-HF_API_KEY = st.secrets["hf"]["api_key"]
+# دریافت کلید API از فایل secrets
+API_KEY = st.secrets["gemini"]["api_key"]
+
+# پیکربندی کتابخانه genai با کلید API شما
+genai.configure(api_key=API_KEY)
+
+# انتخاب مدل Gemini Pro (که در حال حاضر برای استفاده رایگان در دسترس است)
+model = genai.GenerativeModel('gemini-pro')
 
 # تنظیمات صفحه
 st.set_page_config(page_title="هوش‌یار | مشاور تحصیلی هوشمند", page_icon="🎓")
@@ -12,27 +18,20 @@ st.markdown("👋 به مشاور هوشمند تحصیلی خوش آمدید. �
 # دریافت سوال از کاربر
 question = st.text_input("سوال:")
 
-# تابع پرسش از مدل HuggingFace
-def ask_huggingface(prompt):
-    API_URL = "https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct"
-    headers = {"Authorization": f"Bearer {HF_API_KEY}"}
-    payload = {
-        "inputs": prompt,
-        "parameters": {"max_new_tokens": 128},
-        "options": {"wait_for_model": True}
-    }
-    response = requests.post(API_URL, headers=headers, json=payload)
-    if response.status_code == 200:
-        return response.json()[0]["generated_text"]
-    else:
-        raise Exception(f"خطا در API: {response.status_code} - {response.text}")
+# تابع پرسش از مدل Gemini
+def ask_gemini(prompt):
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        raise Exception(f"خطا در مدل Gemini: {e}")
 
 # وقتی کاربر سوالی وارد کند
 if question:
     with st.spinner("در حال پردازش..."):
         try:
-            prompt = f"سوال مشاوره تحصیلی: {question}\nپاسخ:"
-            result = ask_huggingface(prompt)
+            prompt = f"سوال مشاوره تحصیلی: {question}"
+            result = ask_gemini(prompt)
             st.success("✅ پاسخ:")
             st.write(result)
         except Exception as e:
