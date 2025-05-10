@@ -7,7 +7,7 @@ API_KEY = st.secrets["gemini"]["api_key"]
 # پیکربندی کتابخانه genai با کلید API شما
 genai.configure(api_key=API_KEY)
 
-# انتخاب مدل Gemini Pro (که در حال حاضر برای استفاده رایگان در دسترس است)
+# انتخاب مدل Gemini Pro (تلاش با نام فعلی احتمالی)
 model = genai.GenerativeModel('gemini-pro')
 
 # تنظیمات صفحه
